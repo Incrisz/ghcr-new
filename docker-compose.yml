@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # image: ghcr.io/cyfamod-technologies/ghcr-php:latest
+    ports:
+      - "8080:80"
+    # secrets:
+    #   - source: ghcr_auth_config
+    #     target: /root/.docker/config.json
+    environment:
+      DB_HOST: db
+      DB_DATABASE: testdb
+      DB_USERNAME: user
+      DB_PASSWORD: password
+    depends_on:
+      - db
+    deploy:
+      replicas: 1
+    networks:
+      - app_net
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app_net
+
+volumes:
+  db_data:
+
+networks:
+  app_net:
+
+# secrets:
+#   ghcr_auth_config:
+#     external: true

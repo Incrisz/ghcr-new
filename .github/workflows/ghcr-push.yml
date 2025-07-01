@@ -1,0 +1,74 @@
+name: Build & Push Hello World to GHCR
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.setver.outputs.version }}
+    steps:
+      - name: Generate version tag
+        id: setver
+        run: |
+          VERSION="v$(date +%Y%m%d-%H%M)"
+          echo "VERSION=$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build (GHCR ${{ needs.version.outputs.version }})
+    needs: version
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build and push image to GHCR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/incrisz/ghcr-php:latest
+            ghcr.io/incrisz/ghcr-php:${{ env.VERSION }}
+
+  # deploy:
+  #   name: Deploy to Swarm Manager
+  #   needs: build
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Deploy via SSH
+  #       uses: appleboy/ssh-action@v1.0.0
+  #       with:
+  #         host: ${{ secrets.SSH_SERVER }}
+  #         username: ${{ secrets.SSH_USER }}
+  #         password: ${{ secrets.SSH_PASSWORD }}
+  #         port: 22
+  #         script: |
+  #           docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_TOKEN }}
+  #           docker pull ghcr.io/incrisz/ghcr-php:${{ needs.version.outputs.version }}
+  #           # docker service update \
+  #           #   --image ghcr.io/incrisz/ghcr-php:${{ needs.version.outputs.version }} \
+  #           #   ghcr
+  #           docker stack deploy --with-registry-auth -c /home/ubuntu/ghcr/docker-compose.yml ghcr
+
+ 
+ 
