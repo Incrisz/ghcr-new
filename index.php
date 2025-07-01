@@ -1,9 +1,9 @@
 <?php
 
 $host = getenv('DB_HOST') ?: 'reconxi-ghcr-qtz2v7';
-$db   = getenv('DB_DATABASE') ?: 'testdb';
-$user = getenv('DB_USERNAME') ?: 'user';
-$pass = getenv('DB_PASSWORD') ?: 'password';
+$db   = getenv('DB_DATABASE') ?: 'ghcr';
+$user = getenv('DB_USERNAME') ?: 'ghcr';
+$pass = getenv('DB_PASSWORD') ?: 'ghcr';
 
 echo "Everything done on GHCR! 👋<br>";
 
