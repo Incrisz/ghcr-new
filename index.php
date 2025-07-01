@@ -6,6 +6,7 @@ $user = getenv('DB_USERNAME') ?: 'user';
 $pass = getenv('DB_PASSWORD') ?: 'password';
 
 echo "Everything done on GHCR! 👋<br>";
+echo "it was built from an image so how 👋<br>";
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
